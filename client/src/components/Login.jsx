@@ -28,7 +28,7 @@ function Login() {
   return (
     <div className="w-full h-full bg-img-background bg-cover bg-no-repeat">
       <div className="w-full h-full flex justify-center items-center md:block">
-        <div className="h-full md:w-1/3 w-3/4 min-w-min px-3 bg-white bg-opacity-50 shadow-2xl flex items-center justify-center">
+        <div className="h-full  min-w-min px-3 bg-white bg-opacity-50 shadow-2xl flex items-center justify-center">
           <form
             className="flex flex-col items-center justify-center sm:justify-start rounded"
             onSubmit={handleSubmit}

@@ -86,6 +86,8 @@ if (process.env.NODE_ENV === "production") {
 
 const port = process.env.PORT || 5001;
 
+//Whenever someone connects this gets executed
+
 io.on("connection", (socket) => {
   socket.on("joinRoom", ({ name, room, peerID }) => {
     const user = userJoin({ id: socket.id, name, room, peerID });
@@ -169,3 +171,4 @@ io.on("connection", (socket) => {
 server.listen(port, () => {
   console.log(`App is running on http://localhost:${port}`);
 });
+3

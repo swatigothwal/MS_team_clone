@@ -26,7 +26,7 @@ function Register() {
 
   return (
     <div className="h-full bg-img-background bg-cover bg-no-repeat flex justify-center md:block">
-      <div className="h-full w-3/4 md:w-1/3 items-center flex justify-center bg-white bg-opacity-50 shadow-2xl rounded px-4">
+      <div className="h-full  items-center flex justify-center bg-white bg-opacity-50 shadow-2xl rounded px-4">
         <form className="max-w-lg text-xl" autoComplete="off" onSubmit={handleSubmit}>
           <div className="text-6xl md:text-4xl xl:text-5xl 2xl:text-7xl mb-12 flex justify-center">
             Sign up

@@ -20,6 +20,7 @@ function Room() {
       upgrade: false,
     })
   );
+  
   const [peerId, setPeerId] = useState();
   const [members, setMembers] = useState([]);
   const [peer] = useState(
@@ -34,8 +35,10 @@ function Room() {
   );
 
   useEffect(() => {
-    peer?.on("open", (id) => {
-      setPeerId(id);
+
+    //Emitted when a connection to the PeerServer is established
+    peer?.on("open", (id) => {  
+       setPeerId(id);
       socket.emit("joinRoom", { name: user?.name, room, peerID: id });
 
       socket.on("allMembers", (userPeers) => {
@@ -57,6 +60,7 @@ function Room() {
           });
 
         // Answer
+        //Emitted when a remote peer attempts to call you
         peer.on("call", (call) => {
           if (videos) videos.innerHTML = "";
           navigator.mediaDevices
@@ -66,7 +70,7 @@ function Room() {
               playStream(id, stream, true);
               userPeers.forEach((member) => {
                 if (member !== id) {
-                  call?.on("stream", (remoteStream) => {
+                  call?.on("stream", (remoteStream) => {  //stream event emmited when a remote peer adds a stream
                     playStream(member, remoteStream);
                   });
                 }
