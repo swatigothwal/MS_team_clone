@@ -1,5 +1,5 @@
 import { useParams } from "react-router";
-import { Redirect } from "react-router-dom";
+import { Redirect, useHistory } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import io from "socket.io-client";
@@ -12,12 +12,14 @@ const END_POINT = "http://localhost:5001/";
 
 function Room() {
 
+  const [isPresenting, setIsPresenting] = useState(false);
+  const [screenCastStream, setScreenCastStream] = useState();
   const [streamObj, setStreamObj] = useState();
   const loadingStatus = useSelector((state) => state.auth.loading);
   const authStatus = useSelector((state) => state.auth.isAuthenticated);
   const [room] = useState(useParams().id);
   const user = useSelector((state) => state.auth.user);
-
+   const history = useHistory();
   const [socket] = useState(() =>
     io(END_POINT, {
       transports: ["websocket"],
@@ -34,7 +36,8 @@ function Room() {
           iceServers: [
             { urls: 'stun:stun2.1.google.com:19302'}
           ],
-        },
+        },  
+        trickle: false,
       })
   );
 
@@ -192,19 +195,47 @@ function Room() {
 		})
 	};
 
-/*  getDislayMedia = () => {
-		if (this.state.screen) {
-			if (navigator.mediaDevices.getDisplayMedia) {
-				navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
-					.then(this.getDislayMediaSuccess)
-					.then((stream) => {})
-					.catch((e) => console.log(e))
-			}
-		}
-	}
+  const screenShare = () => {
+    navigator.mediaDevices
+      .getDisplayMedia({ cursor: true })
+      .then((screenStream) => {
+       
+        peer.replaceTrack(
+          streamObj.getVideoTracks()[0],
+          screenStream.getVideoTracks()[0],
+          streamObj
+        );
+        setScreenCastStream(screenStream);
+        screenStream.getTracks()[0].onended = () => {
+          peer.replaceTrack(
+            screenStream.getVideoTracks()[0],
+            streamObj.getVideoTracks()[0],
+            streamObj
+          );
+        };
+   
+        setIsPresenting(true);
+      });
+  };
 
-  const shareScreen = () => this.setState({ screen: !this.state.screen }, () => this.getDislayMedia())
-*/
+  const stopScreenShare = () => {
+    screenCastStream.getVideoTracks().forEach(function (track) {
+      track.stop();
+    });
+    peer.replaceTrack(
+      screenCastStream.getVideoTracks()[0],
+      streamObj.getVideoTracks()[0],
+      streamObj
+    );
+    setIsPresenting(false);
+  };
+
+  const disconnectCall = () => {
+    peer.destroy();
+    history.push("/login");
+   window.location.reload();
+  };
+
   return (
     <div className="w-full h-full flex">
       <div 
@@ -218,7 +249,9 @@ function Room() {
       <button onClick={()=>toggleVideo()}> Video </button>
       <button onClick={()=>toggleAudio()}> MUTE </button>
       <button onClick={()=>copyUrl()}> Copy </button>
-            
+      <button onClick={()=>screenShare()}> screenShare </button>
+      <button onClick={()=>disconnectCall()}> End </button>
+                         
     </div>
   );
 }
