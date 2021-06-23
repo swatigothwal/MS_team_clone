@@ -5,10 +5,14 @@ import { useEffect, useState } from "react";
 import io from "socket.io-client";
 import Peer from "peerjs";
 import Message from "components/Message";
+import { message as copied} from 'antd'
+import 'antd/dist/antd.css'
 
 const END_POINT = "http://localhost:5001/";
 
 function Room() {
+
+  const [streamObj, setStreamObj] = useState();
   const loadingStatus = useSelector((state) => state.auth.loading);
   const authStatus = useSelector((state) => state.auth.isAuthenticated);
   const [room] = useState(useParams().id);
@@ -47,6 +51,8 @@ function Room() {
         navigator.mediaDevices
           .getUserMedia({ video: true, audio: true })
           .then((stream) => {
+
+            setStreamObj(stream);
             playStream(id, stream, true);
             userPeers.forEach((member) => {
               if (member !== id) {
@@ -138,6 +144,67 @@ function Room() {
     }
   }
 
+  const toggleVideo = () => {
+    let enabled = streamObj.getVideoTracks()[0].enabled;
+    if(enabled)
+    {
+      streamObj.getVideoTracks()[0].enabled = false;
+      setStreamObj(streamObj);
+    }else{
+      streamObj.getVideoTracks()[0].enabled = true;
+      setStreamObj(streamObj);
+    }
+  };
+
+  const toggleAudio = () => {
+    let enabled = streamObj.getAudioTracks()[0].enabled;
+    if(enabled)
+    {
+      streamObj.getAudioTracks()[0].enabled = false;
+      setStreamObj(streamObj);
+    }else{
+      streamObj.getAudioTracks()[0].enabled = true;
+      setStreamObj(streamObj);
+    }
+  };
+
+  const copyUrl = () => {
+		let text = window.location.href
+		if (!navigator.clipboard) {
+			let textArea = document.createElement("textarea")
+			textArea.value = text
+			document.body.appendChild(textArea)
+			textArea.focus()
+			textArea.select()
+			try {
+				document.execCommand('copy')
+			  copied.success("Link copied to clipboard!")
+			} catch (err) {
+      	copied.error("Failed to copy")
+			}
+			document.body.removeChild(textArea)
+			return
+		}
+		navigator.clipboard.writeText(text).then(function () {
+			copied.success("Link copied to clipboard!")
+		}, () => {
+      copied.error("Failed to copy")
+		})
+	};
+
+/*  getDislayMedia = () => {
+		if (this.state.screen) {
+			if (navigator.mediaDevices.getDisplayMedia) {
+				navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
+					.then(this.getDislayMediaSuccess)
+					.then((stream) => {})
+					.catch((e) => console.log(e))
+			}
+		}
+	}
+
+  const shareScreen = () => this.setState({ screen: !this.state.screen }, () => this.getDislayMedia())
+*/
   return (
     <div className="w-full h-full flex">
       <div 
@@ -147,6 +214,11 @@ function Room() {
       <div className="w-1/4 hidden sm:block h-full border-l border-gray-300">
         <Message room={room} socket={socket} />
       </div>
+
+      <button onClick={()=>toggleVideo()}> Video </button>
+      <button onClick={()=>toggleAudio()}> MUTE </button>
+      <button onClick={()=>copyUrl()}> Copy </button>
+            
     </div>
   );
 }
