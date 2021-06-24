@@ -9,7 +9,6 @@
     "client-install": "cd client && npm install",
     "start": "node app.js",
     "client": "cd client && npm start",
-    "heroku-postbuild": "npm run client-install && npm run build",
     "dev": "nodemon app.js"
   },
   "repository": {
@@ -20,9 +19,9 @@
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/lethanhvietctt5/video-chat-app/issues"
+    "url": "https://github.com/swatigothwal/MS_team_clone.git/issues"
   },
-  "homepage": "https://github.com/lethanhvietctt5/video-chat-app#readme",
+  "homepage": "https://github.com/swatigothwal/MS_team_clone#readme",
   "dependencies": {
     "bcrypt": "^5.0.1",
     "body-parser": "^1.19.0",
