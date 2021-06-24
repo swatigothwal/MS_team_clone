@@ -7,11 +7,31 @@ import Peer from "peerjs";
 import Message from "components/Message";
 import { message as copied} from 'antd'
 import 'antd/dist/antd.css'
+import ToggleFullScreen from "./fullScreen";
+
+import {IconButton, Badge, Input, Button} from '@material-ui/core'
+import VideocamIcon from '@material-ui/icons/Videocam'
+import VideocamOffIcon from '@material-ui/icons/VideocamOff'
+import MicIcon from '@material-ui/icons/Mic'
+import MicOffIcon from '@material-ui/icons/MicOff'
+import ScreenShareIcon from '@material-ui/icons/ScreenShare'
+import StopScreenShareIcon from '@material-ui/icons/StopScreenShare'
+import ChatIcon from '@material-ui/icons/Chat'
+import CallEndIcon from '@material-ui/icons/CallEnd';
+import FullscreenIcon from '@material-ui/icons/Fullscreen';
+import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
+import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
+//import { Row } from 'reactstrap'
+//import Modal from 'react-bootstrap/Modal'
+import 'bootstrap/dist/css/bootstrap.css'
 
 const END_POINT = "http://localhost:5001/";
 
 function Room() {
 
+  const [isFullScreen,setIsFullScreen] = useState(false);
+  const [audioUnmute,setAudioUnmute] = useState(true);
+  const [videoVisible,setVideoVisible] = useState(true);
   const [isPresenting, setIsPresenting] = useState(false);
   const [screenCastStream, setScreenCastStream] = useState();
   const [streamObj, setStreamObj] = useState();
@@ -54,7 +74,8 @@ function Room() {
         navigator.mediaDevices
           .getUserMedia({ video: true, audio: true })
           .then((stream) => {
-
+            setAudioUnmute(true);
+            setVideoVisible(true);
             setStreamObj(stream);
             playStream(id, stream, true);
             userPeers.forEach((member) => {
@@ -153,21 +174,26 @@ function Room() {
     {
       streamObj.getVideoTracks()[0].enabled = false;
       setStreamObj(streamObj);
+      setVideoVisible(false);
     }else{
       streamObj.getVideoTracks()[0].enabled = true;
       setStreamObj(streamObj);
+      setVideoVisible(true);
     }
   };
 
   const toggleAudio = () => {
     let enabled = streamObj.getAudioTracks()[0].enabled;
+    
     if(enabled)
     {
       streamObj.getAudioTracks()[0].enabled = false;
       setStreamObj(streamObj);
+      setAudioUnmute(false);
     }else{
       streamObj.getAudioTracks()[0].enabled = true;
       setStreamObj(streamObj);
+      setAudioUnmute(true);
     }
   };
 
@@ -230,12 +256,32 @@ function Room() {
     setIsPresenting(false);
   };
 
+  const toggleScreenShare =()=>{
+          if(isPresenting===true){
+            stopScreenShare();
+          }else{
+            screenShare();
+          }
+  }
+
   const disconnectCall = () => {
     peer.destroy();
     history.push("/login");
    window.location.reload();
   };
 
+  const handleExitFullScreenClick =()=> {
+    document.webkitExitFullscreen();
+  }
+  const getToggleFullScreen = ()=>{
+     if(!isFullScreen){
+        ToggleFullScreen();
+        setIsFullScreen(true)
+      }else{
+      handleExitFullScreenClick();
+      setIsFullScreen(false);
+    }
+}
   return (
     <div className="w-full h-full flex">
       <div 
@@ -245,13 +291,37 @@ function Room() {
       <div className="w-1/4 hidden sm:block h-full border-l border-gray-300">
         <Message room={room} socket={socket} />
       </div>
+      
+      <div className="btn-down" style={{ backgroundColor: "whitesmoke", color: "whitesmoke", textAlign: "center" }}>
+							<IconButton style={{ color: "#424242" }} onClick={()=>toggleVideo()}>
+								{(videoVisible === true) ? <VideocamIcon /> : <VideocamOffIcon />}
+							</IconButton>
 
-      <button onClick={()=>toggleVideo()}> Video </button>
-      <button onClick={()=>toggleAudio()}> MUTE </button>
-      <button onClick={()=>copyUrl()}> Copy </button>
-      <button onClick={()=>screenShare()}> screenShare </button>
-      <button onClick={()=>disconnectCall()}> End </button>
-                         
+							<IconButton style={{ color: "#f44336" }} onClick={()=>disconnectCall()}>
+								<CallEndIcon />
+							</IconButton>
+
+							<IconButton style={{ color: "#424242" }} onClick={()=>toggleAudio()}>
+								{audioUnmute === false ? <MicIcon /> : <MicOffIcon />}
+							</IconButton>
+              
+								<IconButton style={{ color: "#424242" }} onClick={()=>toggleScreenShare()}>
+									{isPresenting === true ? <ScreenShareIcon /> : <StopScreenShareIcon />}
+								</IconButton>
+
+								<IconButton style={{ color: "#424242" }} onClick={()=>getToggleFullScreen()}>
+									{
+                    isFullScreen!==true?
+                    <FullscreenIcon />
+                  :<FullscreenExitIcon/>
+                  }
+								</IconButton>
+						</div>
+            <div>
+            <IconButton style={{ color: "#424242" }} onClick={()=>copyUrl()}>
+            <FileCopyOutlinedIcon/>
+							</IconButton>
+            </div>
     </div>
   );
 }
