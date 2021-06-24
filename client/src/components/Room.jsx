@@ -29,6 +29,7 @@ const END_POINT = "http://localhost:5001/";
 
 function Room() {
 
+  const [isMsg,setIsMsg] = useState(false);
   const [isFullScreen,setIsFullScreen] = useState(false);
   const [audioUnmute,setAudioUnmute] = useState(true);
   const [videoVisible,setVideoVisible] = useState(true);
@@ -39,7 +40,8 @@ function Room() {
   const authStatus = useSelector((state) => state.auth.isAuthenticated);
   const [room] = useState(useParams().id);
   const user = useSelector((state) => state.auth.user);
-   const history = useHistory();
+  const history = useHistory();
+
   const [socket] = useState(() =>
     io(END_POINT, {
       transports: ["websocket"],
@@ -282,16 +284,29 @@ function Room() {
       setIsFullScreen(false);
     }
 }
+ const showChat = ()=>{
+     if(isMsg){
+       setIsMsg(false);
+     }else{
+       setIsMsg(true);
+     }
+ }
+
   return (
     <div className="w-full h-full flex">
       <div 
-        className="w-full sm:w-3/4 h-full no-scrollbar grid grid-cols-2 gap-2 overflow-y-scroll bg-black bg-opacity-90 p-2"
+        className="w-full  h-full no-scrollbar grid grid-cols-2 gap-2 overflow-y-scroll bg-black bg-opacity-90 p-2"
         id="videoContainer"
       ></div>
-      <div className="w-1/4 hidden sm:block h-full border-l border-gray-300">
-        <Message room={room} socket={socket} />
-      </div>
       
+      {
+        isMsg===true?
+       <div className="w-1/4 hidden sm:block h-full border-l border-gray-300">
+       <Message room={room} socket={socket} />
+       </div>:
+       <></>
+      }
+
       <div className="btn-down" style={{ backgroundColor: "whitesmoke", color: "whitesmoke", textAlign: "center" }}>
 							<IconButton style={{ color: "#424242" }} onClick={()=>toggleVideo()}>
 								{(videoVisible === true) ? <VideocamIcon /> : <VideocamOffIcon />}
@@ -316,12 +331,16 @@ function Room() {
                   :<FullscreenExitIcon/>
                   }
 								</IconButton>
-						</div>
-            <div>
-            <IconButton style={{ color: "#424242" }} onClick={()=>copyUrl()}>
-            <FileCopyOutlinedIcon/>
+                     
+                <IconButton style={{ color: "#424242" }} onClick={()=>showChat()}>
+									<ChatIcon/>
+								</IconButton>
+                   
+                <IconButton style={{ color: "#424242" ,marginLeft: '0.8rem' }} onClick={()=>copyUrl()}>
+              <FileCopyOutlinedIcon/>
 							</IconButton>
-            </div>
+    
+          	</div>
     </div>
   );
 }
