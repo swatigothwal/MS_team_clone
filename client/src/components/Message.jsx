@@ -11,10 +11,9 @@ function Message({ room, socket }) {
       socket.on("message", (message) => {
         setMessages([...messages, message]);
         let element = document.getElementById("messages");
-        element.scrollTop = element.scrollHeight;
+       if(messages.length>0) element.scrollTop = element.scrollHeight;
       });
     }
-
     //return () => {
     //  socket?.off("message");
     //};
