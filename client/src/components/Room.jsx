@@ -25,7 +25,7 @@ import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
 //import Modal from 'react-bootstrap/Modal'
 import 'bootstrap/dist/css/bootstrap.css'
 
-const END_POINT = "http://localhost:5001/";
+const END_POINT = process.env.REACT_APP_HOST_URL;
 
 function Room() {
 
